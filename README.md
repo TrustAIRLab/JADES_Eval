@@ -352,6 +352,10 @@ Available modules are `clean`, `decompose`, `pair`, `judge`, `overall`, `fact_de
 
 After editing the configuration, rerun the CLI command or create a new `Evaluator` / `AsyncEvaluator` instance in Python.
 
+## Responsible use
+
+Use JADES Eval responsibly to study and improve the safety of AI systems. Conduct evaluations only on systems you own or have permission to assess. Do not use this project to facilitate harmful activities or exploit systems without authorization. When sharing findings, follow responsible disclosure practices and avoid publishing details that could enable misuse.
+
 ## Learn more
 
 - [Time and token metrics](https://github.com/TrustAIRLab/JADES_Eval/blob/main/docs/metrics.md)
