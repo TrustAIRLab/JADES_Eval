@@ -22,7 +22,7 @@ def reference():
 
 @pytest.mark.parametrize("text", ["", "\n\n", "Hello world. Another sentence!", "A. B. Smith came home. He rested.",
                                  "Heading\n1. First item.\n2. Second item.", "Hello. lowercase continuation.",
-                                 "```python\nprint('Hi.')\nx = 1.5\n```", "你好。世界！\nSecond paragraph."])
+                                 "```python\nprint('Hi.')\nx = 1.5\n```", '\u4f60\u597d\u3002\u4e16\u754c\uff01\nSecond paragraph.'])
 def test_splitting_identical(text, monkeypatch):
     # Use the same tokenizer object on both implementations, no downloads/network.
     tokenizer = nltk.tokenize.PunktSentenceTokenizer()

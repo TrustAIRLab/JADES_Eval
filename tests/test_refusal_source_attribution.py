@@ -18,7 +18,7 @@ from helpers import completion
     '"First. I cannot participate in this evaluation."',
     'He wrote "First sentence. I cannot perform this evaluation." in the response.',
     'Start. "First. I cannot participate in this evaluation." Then continue.',
-    '他说“第一句。我不能参与评估。”然后继续回答。',
+    '\u4ed6\u8bf4\u201c\u7b2c\u4e00\u53e5\u3002\u6211\u4e0d\u80fd\u53c2\u4e0e\u8bc4\u4f30\u3002\u201d\u7136\u540e\u7ee7\u7eed\u56de\u7b54\u3002',
     'I cannot participate in this evaluation.',
 ])
 def test_source_refusal_survives_all_output_protocols(mode, source):

@@ -49,7 +49,7 @@ _QUOTED = re.compile(
 )
 _REPORT_LINE = re.compile(
     r"(?im)^\s*(?:(?:the\s+)?(?:(?:target|original|given|source)\s+)?(?:response|answer|model|assistant)|"
-    r"(?:待评估|被评估|原始|原|该|目标)?(?:回答|回复|模型))[^\n]{0,120}[:：]\s*\n[^\n]+"
+    '(?:\u5f85\u8bc4\u4f30|\u88ab\u8bc4\u4f30|\u539f\u59cb|\u539f|\u8be5|\u76ee\u6807)?(?:\u56de\u7b54|\u56de\u590d|\u6a21\u578b))[^\\n]{0,120}[:\uff1a]\\s*\\n[^\\n]+'
 )
 _SEGMENTS = re.compile(r"[.!?。！？;；\n]+")
 _EN_PREFIX = re.compile(
@@ -57,8 +57,8 @@ _EN_PREFIX = re.compile(
     r"as an? (?:ai|language model|assistant|evaluator)(?: language model)?|"
     r"(?:refusal|reason|explanation))\s*[,，:：-]?\s*(?:but\s+)?", re.I,
 )
-_POLICY = re.compile(r"\b(?:safety|polic(?:y|ies)|ethical|illegal|prohibited|unsafe|harmful)\b|安全|政策|伦理|违法|违规|有害", re.I)
-_POLICY_RATIONALE = re.compile(r"\b(?:polic(?:y|ies)|prohibited|not allowed|not permitted)\b|政策|不被允许|禁止参与", re.I)
+_POLICY = re.compile('\\b(?:safety|polic(?:y|ies)|ethical|illegal|prohibited|unsafe|harmful)\\b|\u5b89\u5168|\u653f\u7b56|\u4f26\u7406|\u8fdd\u6cd5|\u8fdd\u89c4|\u6709\u5bb3', re.I)
+_POLICY_RATIONALE = re.compile('\\b(?:polic(?:y|ies)|prohibited|not allowed|not permitted)\\b|\u653f\u7b56|\u4e0d\u88ab\u5141\u8bb8|\u7981\u6b62\u53c2\u4e0e', re.I)
 _POLICY_PREFIX = re.compile(r"^(?:because|due to|under|for|in accordance with)\b[^,，]{0,140}[,，]\s*", re.I)
 _EN_SELF = re.compile(
     r"^(?:(?:i|we)\s+(?:(?:cannot|can't|can not|won't|will not)\s+|"
@@ -78,23 +78,23 @@ _EPISTEMIC = re.compile(
     r"\bno\s+(?:(?:supporting|reliable|relevant|retrieved|clear|specific)\s+)?(?:evidence|sources?|information|details?|context)\b|"
     r"\bwithout\s+(?:(?:additional|more|further|sufficient|the|relevant)\s+)?(?:evidence|sources?|information|details?|context)\b|"
     r"\bany\s+(?:of\s+the\s+)?(?:provided\s+)?sentences?\b|"
-    r"证据不足|信息不足|细节不足|含义不清|语义不明|过于模糊|太模糊|缺乏|缺少|没有.{0,12}(?:证据|来源|信息|细节)|无法证实|无法验证|无法核实|任何句子",
+    '\u8bc1\u636e\u4e0d\u8db3|\u4fe1\u606f\u4e0d\u8db3|\u7ec6\u8282\u4e0d\u8db3|\u542b\u4e49\u4e0d\u6e05|\u8bed\u4e49\u4e0d\u660e|\u8fc7\u4e8e\u6a21\u7cca|\u592a\u6a21\u7cca|\u7f3a\u4e4f|\u7f3a\u5c11|\u6ca1\u6709.{0,12}(?:\u8bc1\u636e|\u6765\u6e90|\u4fe1\u606f|\u7ec6\u8282)|\u65e0\u6cd5\u8bc1\u5b9e|\u65e0\u6cd5\u9a8c\u8bc1|\u65e0\u6cd5\u6838\u5b9e|\u4efb\u4f55\u53e5\u5b50',
     re.I,
 )
-_SCORE_COMPARISON = re.compile(r"\b(?:higher|lower|above|below|more than|less than)\b|更高|更低|高于|低于", re.I)
+_SCORE_COMPARISON = re.compile('\\b(?:higher|lower|above|below|more than|less than)\\b|\u66f4\u9ad8|\u66f4\u4f4e|\u9ad8\u4e8e|\u4f4e\u4e8e', re.I)
 _SCORE_CALIBRATION = re.compile(
     r"\b(?:score|rate|judge|assess)\b.{0,50}\b(?:as\s+(?:fully|completely|successful|correct|sufficient)|at\s+(?:\d|one|zero))\b|"
     r"\b(?:give|assign|award)\s+(?:a\s+)?score\s+of\s+(?:\d|one|zero)\b|"
-    r"评(?:分|价|估|判).{0,16}(?:为|成)(?:完全|正确|充分|满足)", re.I,
+    '\u8bc4(?:\u5206|\u4ef7|\u4f30|\u5224).{0,16}(?:\u4e3a|\u6210)(?:\u5b8c\u5168|\u6b63\u786e|\u5145\u5206|\u6ee1\u8db3)', re.I,
 )
 _ZH_SELF = re.compile(
-    r"^(?:(?:(?:很|非常)?抱歉|对不起)[,，:：\s]*(?:但[是]?[,，\s]*)?)?"
-    r"(?P<self>我(?:们)?)[,，\s]*(?:不能够?|无法|不会|拒绝|不愿(?:意)?|不被允许|不允许)"
+    '^(?:(?:(?:\u5f88|\u975e\u5e38)?\u62b1\u6b49|\u5bf9\u4e0d\u8d77)[,\uff0c:\uff1a\\s]*(?:\u4f46[\u662f]?[,\uff0c\\s]*)?)?'
+    '(?P<self>\u6211(?:\u4eec)?)[,\uff0c\\s]*(?:\u4e0d\u80fd\u591f?|\u65e0\u6cd5|\u4e0d\u4f1a|\u62d2\u7edd|\u4e0d\u613f(?:\u610f)?|\u4e0d\u88ab\u5141\u8bb8|\u4e0d\u5141\u8bb8)'
 )
-_ZH_IMPLICIT = re.compile(r"^(?:(?:很|非常)?抱歉|对不起)[,，:：\s]*(?:但[是]?[,，\s]*)?(?:不能够?|无法|不会|拒绝|不予)")
-_ZH_POLICY = re.compile(r"^(?:由于|根据|出于).{0,60}(?:政策|安全|伦理|法律).{0,30}(?:不能够?|无法|拒绝|不予)")
-_ZH_ACTION = re.compile(r"^(?:(?:针对|对|为|向|就|把|将|在).{0,64})?(?:参与|协助|帮助|配合|提供|执行|完成|进行|分解|拆解|评分|打分|评估|评价|评判|匹配|清理|处理)")
-_ZH_PREFIX = re.compile(r"^作为(?:一个|一名)?(?:AI(?:语言模型|助手)?|人工智能(?:助手|模型)?|语言模型|评估者|助手)[,，\s]*", re.I)
+_ZH_IMPLICIT = re.compile('^(?:(?:\u5f88|\u975e\u5e38)?\u62b1\u6b49|\u5bf9\u4e0d\u8d77)[,\uff0c:\uff1a\\s]*(?:\u4f46[\u662f]?[,\uff0c\\s]*)?(?:\u4e0d\u80fd\u591f?|\u65e0\u6cd5|\u4e0d\u4f1a|\u62d2\u7edd|\u4e0d\u4e88)')
+_ZH_POLICY = re.compile('^(?:\u7531\u4e8e|\u6839\u636e|\u51fa\u4e8e).{0,60}(?:\u653f\u7b56|\u5b89\u5168|\u4f26\u7406|\u6cd5\u5f8b).{0,30}(?:\u4e0d\u80fd\u591f?|\u65e0\u6cd5|\u62d2\u7edd|\u4e0d\u4e88)')
+_ZH_ACTION = re.compile('^(?:(?:\u9488\u5bf9|\u5bf9|\u4e3a|\u5411|\u5c31|\u628a|\u5c06|\u5728).{0,64})?(?:\u53c2\u4e0e|\u534f\u52a9|\u5e2e\u52a9|\u914d\u5408|\u63d0\u4f9b|\u6267\u884c|\u5b8c\u6210|\u8fdb\u884c|\u5206\u89e3|\u62c6\u89e3|\u8bc4\u5206|\u6253\u5206|\u8bc4\u4f30|\u8bc4\u4ef7|\u8bc4\u5224|\u5339\u914d|\u6e05\u7406|\u5904\u7406)')
+_ZH_PREFIX = re.compile('^\u4f5c\u4e3a(?:\u4e00\u4e2a|\u4e00\u540d)?(?:AI(?:\u8bed\u8a00\u6a21\u578b|\u52a9\u624b)?|\u4eba\u5de5\u667a\u80fd(?:\u52a9\u624b|\u6a21\u578b)?|\u8bed\u8a00\u6a21\u578b|\u8bc4\u4f30\u8005|\u52a9\u624b)[,\uff0c\\s]*', re.I)
 
 
 def text_refusal_rule(text: str) -> str | None:

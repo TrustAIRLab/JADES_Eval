@@ -18,7 +18,7 @@ Output-format checks still apply independently: a plain-text reply that does not
 
 ## Conservative local rules
 
-No extra LLM is called and no prompt/model parameter is changed. The local detector recognizes explicit first-person declarations such as `I cannot participate in this evaluation` or `我不能参与评估`. It checks module-specific explanation fields, including decomposition reasons, matching reasons, judgment reasons, overall reasons and fact-processing explanations.
+No extra LLM is called and no prompt/model parameter is changed. The local detector recognizes explicit first-person declarations such as `I cannot participate in this evaluation` or its Chinese-language equivalent. It checks module-specific explanation fields, including decomposition reasons, matching reasons, judgment reasons, overall reasons and fact-processing explanations.
 
 The guard does **not** infer refusal merely from a zero score, the word “refusal,” an empty list or lack of evidence. It excludes copied answers, cleaned sentences, matched sentences, facts and retrieved evidence. Quoted statements, reported target refusals, markdown quotations and common expressions of insufficient evidence are excluded. For example, `The response says "I cannot help"` and `I cannot verify this fact from the retrieved information` do not constitute evaluator self-refusal.
 

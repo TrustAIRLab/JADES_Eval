@@ -250,11 +250,11 @@ def test_output_schema_change_changes_prompt_contract(monkeypatch):
 
 def test_partial_utf8_log_tail_is_repaired_and_reported(tmp_path):
     p = tmp_path / "events.jsonl"
-    complete = '{"event":"test","text":"中文"}\n'.encode()
+    complete = '{"event":"test","text":"\u4e2d\u6587"}\n'.encode()
     p.write_bytes(complete + b'{"text":"\xe4\xb8')
     issues = []
     events = read_events(p, issues=issues)
-    assert events == [{"event": "test", "text": "中文"}]
+    assert events == [{"event": "test", "text": '\u4e2d\u6587'}]
     assert p.read_bytes() == complete
     assert issues == ["metrics_partial_tail"]
 
@@ -272,7 +272,7 @@ def test_output_cannot_overwrite_input_even_with_force(tmp_path, nlp):
 
 @pytest.mark.parametrize("missing_metrics", [False, True])
 def test_explicit_legacy_import_preserves_originals_and_marks_uncertainty(tmp_path, nlp, missing_metrics):
-    inp, first = input_file(tmp_path, ("中文 q",)), tmp_path / "generated.json"
+    inp, first = input_file(tmp_path, ('\u4e2d\u6587 q',)), tmp_path / "generated.json"
     old = tmp_path / "old.checkpoint.json"
     target = tmp_path / "imported.json"
     async def run():

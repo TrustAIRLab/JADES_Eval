@@ -1,21 +1,21 @@
 # JADES Eval
 
-JADES Eval 用于评估模型回答对给定问题或任务的满足程度，适合越狱评估等研究场景。你提供一组 **问题（question）和回答（response）**，JADES 返回评分、评价理由、耗时和 token 用量。
+JADES Eval measures how well a model response fulfills a given question or task, including requests used in jailbreak evaluations. Provide a **question** and a **response** to receive a score, scoring explanations, elapsed time, and token usage.
 
-你可以选择两种使用方式：
+Choose one of two ways to use JADES:
 
-| 使用方式 | 适合谁 | 从哪里开始 |
+| Method | Best for | Start here |
 |---|---|---|
-| **Python** | 希望在自己的脚本、Notebook 或评估流程中调用 | [Python 分步示例](#方式一python-分步示例) |
-| **CLI（命令行）** | 已有 JSON/JSONL 数据，希望直接批量评估、保存结果和断点续跑 | [CLI 分步示例](#方式二cli-分步示例) |
+| **Python** | Calling JADES from your scripts, notebooks, or evaluation pipelines | [Python walkthrough](#option-1-python-walkthrough) |
+| **CLI** | Evaluating JSON/JSONL files, saving results, and resuming interrupted batches | [CLI walkthrough](#option-2-cli-walkthrough) |
 
-[PyPI 安装包](https://pypi.org/project/jades-eval/) · [GitHub Releases](https://github.com/TrustAIRLab/JADES_Eval/releases)
+[PyPI package](https://pypi.org/project/jades-eval/) · [GitHub Releases](https://github.com/TrustAIRLab/JADES_Eval/releases)
 
-## 开始前：安装并配置凭据
+## Before you start: install and configure credentials
 
-两种使用方式共用以下准备步骤。需要 **Python 3.10 或更新版本**，建议在独立的 Python 虚拟环境中安装。Windows 用户可以使用 PowerShell 执行下列命令。
+Both methods use the same setup. You need **Python 3.10 or newer**. We recommend installing JADES in a dedicated Python virtual environment. On Windows, use PowerShell for the commands below.
 
-### 第 1 步：创建工作目录并安装
+### Step 1: create a working directory and install
 
 ```bash
 mkdir jades-demo
@@ -23,52 +23,52 @@ cd jades-demo
 python -m pip install --upgrade jades-eval
 ```
 
-### 第 2 步：生成配置文件
+### Step 2: create the configuration files
 
 ```bash
 jades init
 ```
 
-当前目录会生成：
+This creates two files in your current directory:
 
-- `jades.toml`：设置模型、服务地址及评估选项。
-- `.env.example`：凭据模板。
+- `jades.toml`: model names, service endpoints, and evaluation settings.
+- `.env.example`: a credentials template.
 
-### 第 3 步：填写自己的凭据
+### Step 3: add your credentials
 
-复制模板：
+Copy the template:
 
 ```bash
 cp .env.example .env
 ```
 
-用文本编辑器打开 `.env`，填写你自己的 Hugging Face token：
+Open `.env` in a text editor and enter your own Hugging Face token:
 
 ```dotenv
-HF_TOKEN=替换为你的_Hugging_Face_token
+HF_TOKEN=your_hugging_face_token
 ```
 
-默认使用以下模型和服务，不需要额外修改 `jades.toml`：
+JADES uses these defaults, so you do not need to edit `jades.toml` yet:
 
-| 配置 | 默认值 |
+| Setting | Default |
 |---|---|
-| 模型 | `deepseek-ai/DeepSeek-V4-Flash-0731:together` |
-| 服务地址 | `https://router.huggingface.co/v1` |
-| 凭据变量 | `HF_TOKEN` |
+| Model | `deepseek-ai/DeepSeek-V4-Flash-0731:together` |
+| Endpoint | `https://router.huggingface.co/v1` |
+| Credential variable | `HF_TOKEN` |
 
-后面的命令和脚本都在 `jades-demo` 目录下运行。凭据保存在 `.env` 中，不要写入 Python 脚本或提交到公开仓库。LLM 调用使用你的账号，产生的用量由服务提供方计费。
+Run all subsequent commands and scripts from `jades-demo`. Keep credentials in `.env`; do not put them in Python scripts or commit them to a public repository. LLM calls use your account and are billed by your provider.
 
-首次使用时，JADES 会按需下载并缓存分句和语义检测资源，因此启动可能较慢。也可以在运行示例前预先准备资源：
+On first use, JADES downloads and caches the sentence-splitting and semantic-detection resources as needed, so startup may take longer. You can also prepare the resources before running either example:
 
 ```bash
 jades prepare-resources --config jades.toml --env-file .env
 ```
 
-## 方式一：Python 分步示例
+## Option 1: Python walkthrough
 
-### 第 1 步：创建 `demo.py`
+### Step 1: create `demo.py`
 
-将下面的完整代码保存为 `demo.py`。这里使用一个简单的地理问答来演示调用方式；实际评估时，把 `question` 和 `response` 换成你的待测样本。
+Save this complete example as `demo.py`. The geography question demonstrates the API; replace `question` and `response` with your own evaluation sample when you are ready.
 
 ```python
 import json
@@ -90,54 +90,54 @@ try:
             metrics_path="python-demo.metrics.jsonl",
         )
 except EvaluationError as error:
-    print("评估失败：", error)
-    print("失败前已知的 token 消耗：", error.metrics.tokens.known_total_tokens)
+    print("Evaluation failed:", error)
+    print("Known tokens consumed before failure:", error.metrics.tokens.known_total_tokens)
     raise SystemExit(1)
 
-print("评分：", result.score)
-print(f"耗时：{result.metrics.wall_time_seconds:.2f} 秒")
-print("输入 token：", result.metrics.tokens.input_tokens)
-print("输出 token：", result.metrics.tokens.output_tokens)
-print("总 token：", result.metrics.tokens.total_tokens)
+print("Score:", result.score)
+print(f"Elapsed time: {result.metrics.wall_time_seconds:.2f} seconds")
+print("Input tokens:", result.metrics.tokens.input_tokens)
+print("Output tokens:", result.metrics.tokens.output_tokens)
+print("Total tokens:", result.metrics.tokens.total_tokens)
 
 Path("python-result.json").write_text(
     json.dumps(result.to_dict(), ensure_ascii=False, indent=2),
     encoding="utf-8",
 )
-print("完整结果已保存到 python-result.json")
+print("Full results saved to python-result.json")
 ```
 
-### 第 2 步：运行
+### Step 2: run the script
 
 ```bash
 python demo.py
 ```
 
-### 第 3 步：查看结果
+### Step 3: inspect the results
 
-终端会打印本次评分、耗时和 token 用量。运行成功后，还会生成两个文件：
+The terminal prints the score, elapsed time, and token usage. A successful run also creates:
 
-| 文件 | 内容 |
+| File | Contents |
 |---|---|
-| `python-result.json` | 完整评分、各评分点的理由，以及用量汇总 |
-| `python-demo.metrics.jsonl` | 每次请求的耗时、状态和用量记录 |
+| `python-result.json` | Full results, explanations for each scoring point, and usage summaries |
+| `python-demo.metrics.jsonl` | Timing, status, and usage for individual requests |
 
-在 Python 中，也可以直接读取：
+You can also inspect scoring explanations directly in Python:
 
 ```python
-# 接在 demo.py 的成功结果之后。
+# Append this after the successful evaluation in demo.py.
 for point in result.state.scoring_points_judgement_for_a_question or []:
     print(point["scoring_point"])
-    print("分数：", point["judge_score"])
-    print("理由：", point["judge_reason"])
+    print("Score:", point["judge_score"])
+    print("Reason:", point["judge_reason"])
 ```
 
-分数越高，表示回答对被评估任务的满足程度越高。实际结果取决于样本及评估模型；示例不预设固定分数。token 字段为 `None` 时，表示服务未提供完整用量，不能当作零消耗。
+Higher scores indicate that the response fulfills more of the evaluated task. Results depend on the sample and evaluator model; this example does not prescribe a fixed score. A token field of `None` means the provider did not supply complete usage information, not that the request consumed zero tokens.
 
 <details>
-<summary>可选：在 Python 中一次评估多个样本</summary>
+<summary>Optional: evaluate multiple samples in Python</summary>
 
-保存为 `batch_demo.py`，然后运行 `python batch_demo.py`：
+Save this as `batch_demo.py`, then run `python batch_demo.py`:
 
 ```python
 from jades import Evaluator, EvaluationError
@@ -158,19 +158,19 @@ with Evaluator.from_env(config_path="jades.toml", env_file=".env") as evaluator:
 
 for index, result in enumerate(results):
     if isinstance(result, EvaluationError):
-        print(index, "失败：", result)
+        print(index, "Failed:", result)
     else:
-        print(index, "评分：", result.score, "总 token：", result.metrics.tokens.total_tokens)
+        print(index, "Score:", result.score, "Total tokens:", result.metrics.tokens.total_tokens)
 ```
 
-返回结果与输入顺序一致。需要自动保存文件和断点续跑时，使用下面的 CLI 方式。
+Results follow the input order. For automatic file output and resumable batches, use the CLI walkthrough below.
 
 </details>
 
 <details>
-<summary>可选：在 Notebook 或异步程序中使用</summary>
+<summary>Optional: use JADES in a notebook or asynchronous application</summary>
 
-在 Notebook 单元格中运行：
+Run this in a notebook cell:
 
 ```python
 from jades import AsyncEvaluator
@@ -189,11 +189,11 @@ print(result.score)
 
 </details>
 
-## 方式二：CLI 分步示例
+## Option 2: CLI walkthrough
 
-### 第 1 步：创建输入文件 `samples.json`
+### Step 1: create `samples.json`
 
-将下面的内容保存为 `samples.json`。每条样本都包含 `question` 和 `response`：
+Save the following as `samples.json`. Each sample contains a `question` and a `response`:
 
 ```json
 [
@@ -208,113 +208,113 @@ print(result.score)
 ]
 ```
 
-### 第 2 步：运行评估
+### Step 2: run the evaluation
 
 ```bash
 jades evaluate --config jades.toml --env-file .env --input samples.json --output results.json
 ```
 
-终端会显示成功、失败和跳过的样本数，以及本次运行的耗时和已知 token 用量。
+The terminal reports the number of successful, failed, and skipped samples, together with the elapsed time and known token usage for this run.
 
-### 第 3 步：打开结果文件
+### Step 3: open the output files
 
-运行后，工作目录中会出现：
+The working directory will contain:
 
-| 文件 | 用途 |
+| File | Purpose |
 |---|---|
-| `results.json` | 查看每条样本的评分、理由及处理状态 |
-| `results.json.summary.json` | 查看整个批次的耗时、成功/失败数、本次与累计用量 |
-| `results.json.metrics.jsonl` | 查看逐次请求记录 |
-| `results.json.checkpoint.json` | 保存进度，供断点续跑使用 |
+| `results.json` | Scores, explanations, and processing status for each sample |
+| `results.json.summary.json` | Batch timing, success/failure counts, and current/cumulative usage |
+| `results.json.metrics.jsonl` | Individual request records |
+| `results.json.checkpoint.json` | Saved progress for resuming the batch |
 
-用文本编辑器打开 `results.json`。它的 `results` 列表中，每项对应一条样本：
+Open `results.json` in a text editor. Each item in its `results` list corresponds to one sample:
 
-| 字段 | 含义 |
+| Field | Meaning |
 |---|---|
-| `status` | `ok` 表示成功，`error` 表示失败 |
-| `result.state.jailbreak_score_weighted` | 该样本的评分 |
-| `result.state.scoring_points_judgement_for_a_question` | 各评分点的分数与理由 |
-| `result.metrics.wall_time_seconds` | 该样本的耗时 |
-| `result.metrics.tokens.total_tokens` | 该样本本次评估的总 token 用量；`null` 表示不完整 |
-| `error` | 失败样本的错误说明；失败项不应作为有效评分使用 |
+| `status` | `ok` for success; `error` for failure |
+| `result.state.jailbreak_score_weighted` | The sample's score |
+| `result.state.scoring_points_judgement_for_a_question` | Scores and explanations for individual scoring points |
+| `result.metrics.wall_time_seconds` | The sample's elapsed time |
+| `result.metrics.tokens.total_tokens` | Total tokens for this evaluation attempt; `null` means incomplete usage |
+| `error` | The explanation for a failed sample; failed entries must not be treated as valid scores |
 
-### 第 4 步：中断后继续运行
+### Step 4: resume after an interruption
 
-如果运行中断，保留上述文件，并使用相同的输入、配置和输出路径，追加 `--resume`：
+Keep the output files and use the same input, configuration, and output path, adding `--resume`:
 
 ```bash
 jades evaluate --config jades.toml --env-file .env --input samples.json --output results.json --resume
 ```
 
-已成功保存的样本会跳过；失败或中断的样本会重新评估。恢复以**整条样本**为单位，不会从样本中间的某次模型调用继续。中断前已经发出的请求可能产生用量。
+Successfully saved samples are skipped. Failed or interrupted samples are evaluated again. Recovery operates on **whole samples**, not individual model calls within a sample. Requests sent before an interruption may have consumed tokens.
 
-如果希望重新评估全部样本，使用新的输出路径即可，例如 `--output results-new.json`。
+To evaluate every sample again, choose a new output path, such as `--output results-new.json`.
 
-### 第 5 步：换成自己的数据
+### Step 5: use your own data
 
-把示例中的问题和回答替换为你的数据即可。还支持：
+Replace the example questions and responses with your own samples. JADES also accepts:
 
-- **JSONL**：每行一个包含 `question`、`response` 的 JSON 对象，输入文件使用 `.jsonl` 后缀。
-- **JailbreakBench 格式**：顶层 `jailbreaks` 列表中的样本使用 `goal` 和 `response`。如果提供顶层 `parameters`，它必须是 JSON 对象。
-- **截断回答字段**：数据使用 `truncated_response` 时，添加 `--response-field truncated_response`。
+- **JSONL**: one JSON object containing `question` and `response` per line. Use a `.jsonl` filename.
+- **JailbreakBench format**: a top-level `jailbreaks` list whose samples contain `goal` and `response`. If present, top-level `parameters` must be a JSON object.
+- **Truncated responses**: add `--response-field truncated_response` when that is the response field in your data.
 
-更多命令行选项：
+See all CLI options:
 
 ```bash
 jades evaluate --help
 ```
 
-## 更换模型：两种方式都适用
+## Change models for either method
 
-你可以让所有模块共用一个模型，也可以为不同模块分别设置模型。
+You can use one model for every module or configure modules individually.
 
-### 所有模块共用一个模型
+### Use one model for all modules
 
-打开生成的 `jades.toml`，**替换已有的 `[llm]` 段**，不要重复添加同名段。以下值需要换成你服务商提供的实际配置：
+Open the generated `jades.toml` and **replace its existing `[llm]` section**; do not add a second section with the same name. Replace the example values with your provider's actual settings:
 
 ```toml
 [llm]
-model = "你的模型名称"
+model = "your-model-name"
 base_url = "https://your-provider.example/v1"
 api_key_env = "MY_LLM_TOKEN"
 temperature = 0.0
 output_mode = "tool"
 ```
 
-在 `.env` 中添加对应凭据：
+Add the corresponding credential to `.env`:
 
 ```dotenv
-MY_LLM_TOKEN=你的_API_密钥
+MY_LLM_TOKEN=your_api_key
 ```
 
-之后仍按上面的 Python 或 CLI 示例运行。示例已显式指定 `jades.toml` 和 `.env`，会加载你选择的配置文件。系统中已设置的 `JADES_*` 环境变量会优先于文件配置。
+Then run either walkthrough as before. Both examples explicitly select `jades.toml` and `.env`. Existing process-level `JADES_*` environment variables take precedence over file settings.
 
-服务需要提供 OpenAI 兼容的 Chat Completions 接口。默认 `tool` 模式需要支持工具调用和 `tool_choice="required"`；也可按服务支持情况显式设置 `output_mode="json_schema"`、`"json_object"` 或 `"text"`。JADES 不会自动替换模型或输出协议。
+Your service must provide an OpenAI-compatible Chat Completions endpoint. The default `tool` output mode requires tool calling and `tool_choice="required"`. Depending on your service, you can explicitly select `output_mode="json_schema"`, `"json_object"`, or `"text"`. JADES does not automatically switch models or output protocols.
 
-本地模型也可以接入：先启动兼容的本地推理服务，再设置它的模型名和地址，例如 `base_url="http://127.0.0.1:8000/v1"`。如果本地服务不要求认证，凭据变量仍需填写一个非空占位值。
+Local models work through the same interface: start a compatible local inference server, then configure its model name and endpoint, such as `base_url="http://127.0.0.1:8000/v1"`. If the server does not require authentication, the configured credential variable still needs a nonempty placeholder value.
 
-### 不同模块使用不同模型
+### Use different models for different modules
 
-例如，在 `jades.toml` 中追加以下配置，为句子清理和评分分别选择模型：
+For example, append these sections to `jades.toml` to choose separate cleaning and scoring models:
 
 ```toml
 [modules.clean]
-model = "你的清理模型"
+model = "your-cleaning-model"
 
 [modules.judge]
-model = "你的评分模型"
+model = "your-scoring-model"
 ```
 
-未填写的服务地址和凭据变量会继承 `[llm]` 配置。模块也可以单独设置 `base_url`、`api_key_env` 和调用参数。
+Unspecified endpoint and credential settings inherit from `[llm]`. Each module can also override `base_url`, `api_key_env`, and supported request parameters.
 
-可配置模块包括 `clean`、`decompose`、`pair`、`judge`、`overall`、`fact_decompose`、`fact_clarify` 和 `fact_check`。整体模型评价与事实核查默认关闭，仅填写这些模块的模型名不会启用对应功能。
+Available modules are `clean`, `decompose`, `pair`, `judge`, `overall`, `fact_decompose`, `fact_clarify`, and `fact_check`. Overall model evaluation and fact checking are disabled by default; setting their model names alone does not enable those features.
 
-修改配置后，CLI 重新运行即可；Python 用户需要重新创建 `Evaluator` 或 `AsyncEvaluator` 实例。
+After editing the configuration, rerun the CLI command or create a new `Evaluator` / `AsyncEvaluator` instance in Python.
 
-## 进一步使用
+## Learn more
 
-- [耗时和 token 统计说明](docs/metrics.md)
-- [拒答提示与失败处理](docs/refusal-checks.md)
-- [可选的复现信息输出](docs/fingerprint-display.md)
-- [评分行为说明](docs/compatibility.md)
-- [问题反馈](https://github.com/TrustAIRLab/JADES_Eval/issues)
+- [Time and token metrics](docs/metrics.md)
+- [Refusal warnings and failure handling](docs/refusal-checks.md)
+- [Optional reproducibility details](docs/fingerprint-display.md)
+- [Scoring behavior](docs/compatibility.md)
+- [Report an issue](https://github.com/TrustAIRLab/JADES_Eval/issues)

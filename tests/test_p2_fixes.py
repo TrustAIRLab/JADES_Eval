@@ -114,7 +114,7 @@ def test_nltk_two_threads_do_not_share_resource_selection(tmp_path):
 
 
 @pytest.mark.parametrize("text", ["A. B. Smith came home. He rested.", "Heading\n1. First item.\n2. Second item.",
-                                 "He met Dr. Smith in Paris. Next sentence!", "```python\nprint('Hi.')\nx = 1.5\n```", "你好。世界！"])
+                                 "He met Dr. Smith in Paris. Next sentence!", "```python\nprint('Hi.')\nx = 1.5\n```", '\u4f60\u597d\u3002\u4e16\u754c\uff01'])
 def test_bound_nltk_algorithm_matches_original_with_same_resources(tmp_path, monkeypatch, text):
     from test_nlp import reference
     make_resources(tmp_path, "dr\n")

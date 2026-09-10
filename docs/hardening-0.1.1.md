@@ -1,23 +1,23 @@
-# 0.1.1 — 审核问题修复与兼容性
+# 0.1.1: audit fixes and compatibility
 
-> 0.1.2 仅调整指纹信息的默认显示：下文涉及的签名、指纹及相关兼容性详情仍保存在内部 checkpoint，对外默认隐藏，需 `--include-fingerprints` 才显示。恢复校验及本页修复保持有效。
+> Version 0.1.2 changes only the default visibility of fingerprint details. The signatures, fingerprints, and related compatibility records described below remain in internal checkpoints. Public output hides them unless `--include-fingerprints` is enabled. Resume validation and the fixes on this page remain effective.
 
-本次针对 Fable 5.1 审核及本地复现中的结果完整性问题。没有修改业务提示词、分句算法、拒答阈值、有限分数的加权公式，也没有把文本拒绝告警重新改成失败。
+This release addressed result-integrity issues identified by the Fable 5.1 review and local reproductions. It did not change business prompts, sentence-splitting algorithms, rejection thresholds, or the weighted formula for finite scores. Textual refusal warnings remain nonblocking.
 
-## 已修复
+## Fixes
 
-1. **同输出并发覆盖**：对输出持有操作系统进程锁，覆盖读取、评估、checkpoint 写入和最后统计全过程。第二个写入者立即报错；进程退出后锁由 OS 释放。锁文件不删除，避免已锁 inode 被替换。仍然按样本重写整份 checkpoint，没有改成新的增量存储架构。
-2. **SDK 参数绕过**：同时检查 `parameters` 和 `extra_body` 中受保护的路由、消息、输出协议及传输字段。供应商的合法扩展（如 thinking）保留。记录配置模型和服务返回模型，便于追溯别名。
-3. **非有限数值中止整批**：输出模型拒绝 NaN/Inf，沿用既有格式修复次数；汇总产生的数值溢出也作为样本错误。持久化前检查结果是否可编码成有限 UTF-8 JSON，单条非法结果不再进入 checkpoint。不会伪造零分。错误后的清理失败不再遮蔽原始异常。
-4. **提示词指纹遗漏**：除系统提示词外，纳入实际用户消息构造函数、相关核心节点模板、节点绑定的提示词和发送给模型的输出 schema。按 AST 归一化源码，不把安装绝对路径或源文件行号作为模板身份。缓存键也纳入问题分解模板和 schema。未改变的定义复用已计算的指纹。
-5. **sidecar 冲突**：新命名保留完整输出文件名。`report.json` 与 `report.jsonl` 的 checkpoint/metrics/summary 各自独立。拒绝把输入文件当输出覆盖，也拒绝直接把保留的 sidecar 名作为输出。
-6. **恢复后历史用量变零**：checkpoint 保存请求账本，恢复时与日志按 request ID 合并。日志丢失、损坏、部分尾行或未完成的历史运行均有明确的不完整性标记。保留已知用量，不再把缺失历史声明成完整的零。
-7. **隐式配置改变凭据去向**：仍自动加载默认 HF_TOKEN，但隐式 cwd 文件不能改变有效 base_url/api_key_env。自定义连接需要显式可信配置文件、显式 env 文件、进程 JADES_* 变量或 Python 覆盖。仅向客户端提供实际引用的凭据变量及搜索凭据。CLI 显示生效来源、模型与端点，不打印凭据值。
-8. **恢复读取编码**：checkpoint 明确使用 UTF-8；日志尾部的截断 UTF-8 可在持锁状态下截断到完整记录，并标明历史不完整。
+1. **Concurrent output overwrites.** An operating-system process lock covers output reads, evaluation, checkpoint writes, and final accounting. A second writer fails immediately. The OS releases the lock when the process exits. Lock files are not deleted, avoiding replacement of a locked inode. Checkpoints are still rewritten after each sample; no new incremental storage architecture was introduced.
+2. **SDK parameter overrides.** Both `parameters` and `extra_body` are checked for protected routing, message, output-protocol, and transport fields. Legitimate provider extensions, such as thinking settings, remain supported. Requests record both the configured model and the provider-reported model to make aliases traceable.
+3. **Non-finite values aborting batches.** Output models reject NaN/Inf using the existing repair budget. Numeric overflow during aggregation is also a sample error. Results are checked for finite, UTF-8-encodable JSON before persistence, so invalid results do not enter checkpoints. Errors are not converted to zero scores, and cleanup failures no longer mask the original exception.
+4. **Incomplete prompt fingerprints.** Fingerprints include actual user-message builders, relevant core-node templates, bound prompts, and output schemas as well as system prompts. Source is normalized as an AST; installation paths and source line numbers do not define template identity. Decomposition cache keys also include the template and schema. Unchanged definitions reuse their calculated fingerprints.
+5. **Sidecar filename collisions.** Sidecars retain the full output filename, so `report.json` and `report.jsonl` have separate checkpoint, metrics, and summary files. Output cannot overwrite the input file or directly use a reserved sidecar filename.
+6. **Historical usage appearing as zero after resume.** Checkpoints retain a request ledger, merged with logs by request ID on resume. Missing or damaged logs, partial final records, and unfinished prior runs produce explicit incomplete-history markers. Known usage remains available; missing history is not reported as a complete zero total.
+7. **Implicit configuration redirecting credentials.** Default HF_TOKEN loading remains automatic, but implicitly discovered working-directory files cannot change the effective base_url/api_key_env. Custom routing requires an explicitly trusted config/env file, process-level JADES_* variables, or Python overrides. Clients receive only referenced credential variables and search credentials. The CLI shows configuration sources, models, and endpoints without printing credential values.
+8. **Recovery file encoding.** Checkpoints explicitly use UTF-8. A truncated UTF-8 log tail can be trimmed to the last complete record while holding the output lock, with history marked incomplete.
 
-## 当前版本恢复
+## Resume current checkpoints
 
-输出 `results.json` 对应：
+For output `results.json`, keep these files together:
 
 - `results.json.checkpoint.json`
 - `results.json.metrics.jsonl`
@@ -27,41 +27,41 @@
 jades evaluate --input samples.json --output results.json --resume
 ```
 
-保持输入、配置和模板一致。仍然是样本级恢复：已保存成功样本跳过，失败/中断样本重跑。文本告警样本仍算成功，不会因为告警而重复调用。
+Keep inputs, configuration, and templates unchanged. Recovery is still per sample: saved successes are skipped; failed or interrupted samples run again. Samples with textual warnings remain successful and are not rerun merely because of those warnings.
 
-## 导入 0.1.0 checkpoint
+## Import a 0.1.0 checkpoint
 
-旧 checkpoint 没有保存完整模板指纹，无法自动证明历史模板一致。需明确指定旧文件并选择**新的输出文件名**：
+Older checkpoints did not retain complete template fingerprints, so historical template identity cannot be established automatically. Explicitly select the old checkpoint and a **new output filename**:
 
 ```bash
 jades evaluate --input samples.json --output resumed.json --resume \
   --legacy-checkpoint results.checkpoint.json
 ```
 
-输入和配置仍须匹配旧签名。旧文件不删除、不覆盖；日志复制到新文件族，已保存的成功结果保留。新结果/summary 会记录 `legacy_prompt_fingerprint_incomplete`，不会把历史缺失的信息冒充为已验证。
+Inputs and configuration must still match the old signature. Original files are neither deleted nor overwritten. Logs are copied to the new output's sidecars, and saved successes are preserved. The imported records retain `legacy_prompt_fingerprint_incomplete` rather than presenting missing historical information as verified.
 
-以后继续使用 `--output resumed.json --resume`。导入前停止旧版运行进程：旧版程序不遵守新锁协议。新锁保护的是遵守协议的本地运行实例，不是对恶意文件系统写入者的隔离机制。
+Continue with `--output resumed.json --resume` afterward. Stop old runners before importing: older versions do not follow the new locking protocol. The lock coordinates cooperating local runners; it is not isolation against a malicious filesystem writer.
 
-## 自定义端点
+## Custom endpoints
 
 ```bash
 jades evaluate --config jades.toml --input samples.json --output results.json
-# 如果连接路由写在 .env 的 JADES_* 变量里：
+# If routing is configured through JADES_* variables in .env:
 jades evaluate --env-file .env --input samples.json --output results.json
 ```
 
-只有凭据值写在 `.env`、且仍使用默认 HF 连接时，不需要增加参数。显式指定的配置仍是可信输入；不要把不可信配置变成显式可信来源。该保护聚焦凭据路由，并不意味着任意恶意配置中的模型或功能设置都安全。
+No extra option is needed when `.env` contains only credential values and the default HF connection is retained. Explicitly selected configuration is still trusted input; do not mark an untrusted file as trusted. This protection focuses on credential routing and does not make arbitrary model or feature settings in malicious configuration safe.
 
-## 保持原策略的部分
+## Preserved behavior
 
-- 文本规则命中只做 warning，不中止、不改分、不新增模型请求。
-- `message.refusal` 与 `content_filter` 仍停止该样本。
-- 搜索失败仍为 unknown 并保留 error 统计，没有擅自改成新的评分扣分规则。
-- 没有一律删除 `reasoning_content`；不同供应商的协议需求仍需保留。
-- 修改并发/超时等配置后仍拒绝普通恢复，保留已文档化的严格配置匹配策略。
+- Text-rule matches only create warnings; they do not stop evaluation, change scores, or add model calls.
+- `message.refusal` and `content_filter` still stop the sample.
+- Search failures still produce unknown evidence and error metrics, without a new score penalty.
+- `reasoning_content` is not universally removed because some providers require it.
+- Changing concurrency, timeouts, or other configuration still prevents ordinary resume, preserving the documented strict configuration-matching policy.
 
-验证覆盖跨进程互斥与进程死亡后的释放、NaN/Inf/溢出隔离、合法 vendor 参数、隐式/显式配置边界、丢失与损坏日志恢复、提示词变更、文件名隔离、UTF-8 尾部修复和旧 checkpoint 导入。所有回归测试使用本地 mock，不调用真实模型或搜索服务。
+Validation covered process exclusion and lock release after process death, NaN/Inf/overflow isolation, valid provider extensions, implicit/explicit configuration boundaries, missing and damaged logs, changed prompts, filename isolation, truncated UTF-8 tails, and legacy checkpoint import. Regression tests used local mocks without real model or search calls.
 
-本轮 **248 项测试通过**。此外，对之前保存的六条真实研究样本完成旧 checkpoint 导入和再次恢复：跳过六条已成功样本，恢复已知历史用量 **181,637 tokens**，新增调用与 token 为零，原结果/checkpoint/metrics 文件 SHA-256 均未变化。该验证保留 `legacy_prompt_fingerprint_incomplete` 标记，不把旧文件缺失的模板信息补写成已验证。
+At this release, **248 tests passed**. Previously saved results for six research samples were also imported and resumed: all six successes were skipped, **181,637 known historical tokens** were recovered, and no new calls or tokens were recorded. SHA-256 hashes of the original result, checkpoint, and metrics files remained unchanged. The validation retained `legacy_prompt_fingerprint_incomplete`; it did not retroactively mark missing template information as verified.
 
-原审核复现脚本保留为历史证据；修复后的行为应使用 `tests/test_hardening_config.py`、`tests/test_hardening_batch.py` 及完整回归套件验证，而不是要求旧漏洞继续复现。
+Original audit reproduction scripts remain historical evidence. Validate corrected behavior with `tests/test_hardening_config.py`, `tests/test_hardening_batch.py`, and the complete regression suite, rather than requiring old defects to reproduce.
