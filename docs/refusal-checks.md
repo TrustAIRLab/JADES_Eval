@@ -51,9 +51,3 @@ except EvaluationError as error:
 Decomposition-cache entries are also checked for audit visibility when read. A suspected refusal is marked with `source="cache"`; the cached data is still returned unchanged and the cache hit is counted normally. New valid decompositions with warnings retain the original caching behavior. This local heuristic never decides whether to reuse, delete or rewrite cached data.
 
 The existing sample-level checkpoint/writing strategy is unchanged. `--resume` retries failed or unfinished samples and skips saved successful samples, including successful samples carrying warnings. Installing this change does not retroactively re-audit completed results; use a new output path to re-evaluate old results. Older logs may contain `semantic_refusal` errors from the former blocking policy; new text-rule matches use `suspected_refusal` warnings.
-
-## Validation
-
-Offline tests cover all output modes, provider refusal failures, warning-only structured and plain-text matches, quoted target refusals, legitimate zero scores and evidence uncertainty. Pipeline tests compare the same simulated responses with text detection enabled and disabled: request bodies, call counts, scores, full states and token usage match. Tests also verify that provider refusals still terminate decomposition/matching/judgment, cached warnings do not change data, and warned successful samples are skipped on resume.
-
-An offline scan of 170 saved stage outputs from the prior six research samples and two fact-check smoke samples triggered no new refusal rule. This is a regression check on those outputs, not an estimate of detector accuracy. No paid model calls are required by the added checks.

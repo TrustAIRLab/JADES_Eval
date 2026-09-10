@@ -1,4 +1,4 @@
-# Measurement contract
+# Time and token usage
 
 Metrics are collected at the OpenAI SDK transport wrapper, covering async and sync entry points. SDK retries are disabled; JADES records every HTTP attempt, including retries and structured-output repair. Neither metrics nor request identifiers enter model prompts.
 
@@ -17,7 +17,7 @@ The default logs contain model/endpoint identifiers, request IDs, status, timing
 
 CLI summaries report current-run and deduplicated cumulative usage, plus sample throughput and totals grouped by model and module. Request IDs prevent duplicate counting during resume. All sidecars and checkpoints must remain together. Interrupted requests whose outcome was never observed cannot have authoritative usage; no local estimate is presented as billable usage.
 
-Version 0.1.1 also stores deduplicated request records in the checkpoint. Missing/damaged metrics history is reported through `accounting_warnings` and `history_complete=false`; recovered `known_*` totals remain available while complete cumulative totals become `null`. `unknown_usage_requests` only counts known requests with missing usage: it cannot count requests whose records were lost entirely. The history flag covers that additional uncertainty. A skipped-only resume makes no new model calls even if historical accounting is incomplete.
+Checkpoints also store deduplicated request records. Missing/damaged metrics history is reported through `accounting_warnings` and `history_complete=false`; recovered `known_*` totals remain available while complete cumulative totals become `null`. `unknown_usage_requests` only counts known requests with missing usage: it cannot count requests whose records were lost entirely. The history flag covers that additional uncertainty. A skipped-only resume makes no new model calls even if historical accounting is incomplete.
 
 `model` identifies the configured model/route used for the request; `response_model` retains the provider's reported model identifier. A provider alias may legitimately differ. Protected `extra_body` fields cannot override the configured wire model.
 

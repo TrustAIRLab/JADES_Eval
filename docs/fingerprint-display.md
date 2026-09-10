@@ -1,4 +1,4 @@
-# Fingerprint visibility (0.1.2)
+# Optional reproducibility details
 
 Public output hides the following system-generated details by default:
 
