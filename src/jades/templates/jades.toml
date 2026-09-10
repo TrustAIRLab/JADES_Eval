@@ -1,0 +1,28 @@
+# Non-sensitive configuration. Credentials belong in .env.
+consider_full = false
+overall_llm = false
+use_web_search = false
+fact_check = false
+use_memory = true
+memory_path = ".jades/cache.sqlite3"
+max_concurrency = 10
+sample_timeout = 500
+search_provider = "brave"
+fact_search_provider = "tavily"
+
+[llm]
+model = "deepseek-ai/DeepSeek-V4-Flash-0731:together"
+base_url = "https://router.huggingface.co/v1"
+api_key_env = "HF_TOKEN"
+temperature = 0.0
+timeout = 60
+output_mode = "tool"
+max_retries = 2
+output_retries = 1
+
+# Modules: clean, decompose, pair, judge, overall,
+# fact_decompose, fact_clarify, fact_check.
+# [modules.judge]
+# model = "another-model"
+# base_url = "https://provider.example/v1"
+# api_key_env = "JUDGE_TOKEN"

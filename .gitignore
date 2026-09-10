@@ -1,0 +1,25 @@
+# Credentials and local configuration
+.env
+.env.*
+*.env
+!.env.example
+/jades.toml
+# Python/build output
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+# Evaluation assets and research outputs
+.jades/
+.jades-locks/
+validation/
+reviews/
+*.metrics.jsonl
+*.checkpoint.json
+*.summary.json
+.DS_Store
+release-metadata/
