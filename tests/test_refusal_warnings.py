@@ -42,7 +42,7 @@ def test_text_warning_preserves_result_without_retry(tmp_path, mode, score):
         assert issue["code"] == "suspected_refusal" and issue["severity"] == "warning"
         assert issue["field"] == "judge_reason"
         assert issue["request_id"] == metrics.requests[0]["request_id"]
-        log = (tmp_path / "metrics.jsonl").read_text()
+        log = (tmp_path / "metrics.jsonl").read_text(encoding="utf-8")
         assert "private-token" not in log and data["judge_reason"] not in log
     asyncio.run(run())
 
@@ -135,7 +135,7 @@ def test_warned_batch_result_is_successful_and_skipped_on_resume(tmp_path, monke
         async with AsyncEvaluator(cfg, {"HF_TOKEN": "test"}, transport=httpx.MockTransport(handler)) as evaluator:
             first = await run_batch(evaluator, inp, out)
             assert first["success_count"] == 1 and first["failure_count"] == 0
-            row = json.loads(out.read_text())["results"][0]
+            row = json.loads(out.read_text(encoding="utf-8"))["results"][0]
             assert row["status"] == "ok"
             assert row["result"]["state"]["jailbreak_score_weighted"] == 0
             assert row["result"]["metrics"]["output_issues"][0]["severity"] == "warning"

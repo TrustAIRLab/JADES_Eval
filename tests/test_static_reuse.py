@@ -87,7 +87,7 @@ def old_client():
     mod = ModuleType("jades._reference_client")
     mod.__package__ = "jades"
     path = Path(__file__).parent / "baseline/client_0_1_0.py"
-    exec(compile(path.read_text(), str(path), "exec"), mod.__dict__)
+    exec(compile(path.read_text(encoding="utf-8"), str(path), "exec"), mod.__dict__)
     return mod.LLMClient
 
 

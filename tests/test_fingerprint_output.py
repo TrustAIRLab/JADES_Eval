@@ -62,9 +62,9 @@ def test_batch_display_toggle_on_resume_preserves_internal_contract(tmp_path, nl
     async def run():
         async with AsyncEvaluator(settings(), {"HF_TOKEN": "test"}, transport=httpx.MockTransport(responder(calls))) as evaluator:
             hidden_summary = await run_batch(evaluator, inp, out)
-            hidden_output = json.loads(out.read_text())
+            hidden_output = json.loads(out.read_text(encoding="utf-8"))
             paths = BatchPaths.for_output(out)
-            checkpoint = json.loads(paths.checkpoint.read_text())
+            checkpoint = json.loads(paths.checkpoint.read_text(encoding="utf-8"))
             signature = checkpoint["signature"]
             original_row = copy.deepcopy(checkpoint["items"]["0"])
             for key in ("signature", "prompt_fingerprint", "config_fingerprint", "compatibility_warnings"):
@@ -74,15 +74,15 @@ def test_batch_display_toggle_on_resume_preserves_internal_contract(tmp_path, nl
             assert len(original_row["result"]["metadata"]["prompt_fingerprint"]) == 64
             count = len(calls)
             shown_summary = await run_batch(evaluator, inp, out, resume=True, include_fingerprints=True)
-            shown_output = json.loads(out.read_text())
+            shown_output = json.loads(out.read_text(encoding="utf-8"))
             assert shown_summary["signature"] == shown_output["signature"] == signature
             assert shown_output["results"][0]["result"]["metadata"]["prompt_fingerprint"]
             assert len(calls) == count and shown_summary["skipped_count"] == 1
             await run_batch(evaluator, inp, out, resume=True)
-            again = json.loads(paths.checkpoint.read_text())
+            again = json.loads(paths.checkpoint.read_text(encoding="utf-8"))
             assert again["signature"] == signature
             assert again["items"]["0"] == original_row
-            assert "signature" not in json.loads(out.read_text())
+            assert "signature" not in json.loads(out.read_text(encoding="utf-8"))
             assert len(calls) == count
     asyncio.run(run())
 
@@ -95,18 +95,18 @@ def test_compatibility_warning_display_is_opt_in(tmp_path, nlp, include):
         async with AsyncEvaluator(settings(), {"HF_TOKEN": "test"}, transport=httpx.MockTransport(responder([]))) as evaluator:
             await run_batch(evaluator, inp, out)
             path = BatchPaths.for_output(out).checkpoint
-            checkpoint = json.loads(path.read_text())
+            checkpoint = json.loads(path.read_text(encoding="utf-8"))
             checkpoint["compatibility_warnings"] = ["legacy_prompt_fingerprint_incomplete"]
             path.write_text(json.dumps(checkpoint))
             summary = await run_batch(evaluator, inp, out, resume=True, include_fingerprints=include)
-            output = json.loads(out.read_text())
+            output = json.loads(out.read_text(encoding="utf-8"))
             if include:
                 assert summary["compatibility_warnings"] == ["legacy_prompt_fingerprint_incomplete"]
                 assert output["compatibility_warnings"] == summary["compatibility_warnings"]
             else:
                 assert "compatibility_warnings" not in summary
                 assert "compatibility_warnings" not in output
-            assert json.loads(path.read_text())["compatibility_warnings"] == ["legacy_prompt_fingerprint_incomplete"]
+            assert json.loads(path.read_text(encoding="utf-8"))["compatibility_warnings"] == ["legacy_prompt_fingerprint_incomplete"]
     asyncio.run(run())
 
 
@@ -146,7 +146,7 @@ def test_cli_default_and_explicit_display(tmp_path, monkeypatch, capsys):
     args = ["evaluate", "--input", str(inp), "--output", str(out)]
     assert main(args) == 0
     assert "fingerprint" not in capsys.readouterr().out.lower()
-    assert "signature" not in json.loads(out.read_text())
+    assert "signature" not in json.loads(out.read_text(encoding="utf-8"))
     assert main(args + ["--resume", "--include-fingerprints"]) == 0
     text = capsys.readouterr().out
     assert "Prompt fingerprint:" in text and "Batch signature:" in text
@@ -159,7 +159,7 @@ def test_legacy_export_shape_stays_unchanged_when_details_requested(tmp_path, nl
         async with AsyncEvaluator(settings(), {"HF_TOKEN": "test"}, transport=httpx.MockTransport(responder([]))) as evaluator:
             summary = await run_batch(evaluator, inp, out, legacy=True, include_fingerprints=True)
         assert "signature" in summary
-        exported = json.loads(out.read_text())
+        exported = json.loads(out.read_text(encoding="utf-8"))
         assert set(exported) == {"meta_data", "jailbreak_qa_artifacts"}
         assert "metadata" not in exported["jailbreak_qa_artifacts"][0]["jailbreak_qa_result"]
     asyncio.run(run())

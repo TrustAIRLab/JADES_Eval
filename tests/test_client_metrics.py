@@ -37,7 +37,7 @@ def test_invalid_output_repair_usage_and_secret_redaction(tmp_path):
         assert metrics.tokens.reasoning_tokens == 6
         assert [r["purpose"] for r in metrics.requests] == ["evaluation", "output_repair"]
         assert calls[0]["messages"] == [{"role": "system", "content": "system"}, {"role": "user", "content": "private sample text"}]
-        text = (tmp_path / "metrics.jsonl").read_text()
+        text = (tmp_path / "metrics.jsonl").read_text(encoding="utf-8")
         assert "DO_NOT_EXPOSE" not in text
         assert "private sample text" not in text
     asyncio.run(run())

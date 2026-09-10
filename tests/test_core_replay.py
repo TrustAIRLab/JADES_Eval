@@ -18,7 +18,7 @@ BASE = Path(__file__).parent / "baseline"
 
 
 def original_functions(file, names, ns):
-    tree = ast.parse((BASE / file).read_text())
+    tree = ast.parse((BASE / file).read_text(encoding="utf-8"))
     selected = [n for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name in names]
     for node in selected:
         node.decorator_list = []
@@ -38,7 +38,7 @@ def original_namespace(consider_full, overall):
     ns = {"asyncio": asyncio, "textwrap": textwrap, "CONSIDER_FULL": consider_full, "OVERALL_LLM": overall,
           "KVMemory": object, "List": list, "_run_async": asyncio.run, "string_split": lambda s: ["First sentence.", "Second sentence."], "simple_rejection_check": lambda s: False}
     ns.update({k: v for k, v in vars(models).items() if not k.startswith("_")})
-    model_tree = ast.parse((BASE / "data_models.py").read_text())
+    model_tree = ast.parse((BASE / "data_models.py").read_text(encoding="utf-8"))
     reference_classes = [n for n in model_tree.body if isinstance(n, ast.ClassDef) and n.name != "KVMemory"]
     exec(compile(ast.Module(body=reference_classes, type_ignores=[]), str(BASE / "data_models.py"), "exec"), ns)
     ns.update({k: v for k, v in vars(prompts).items() if not k.startswith("_")})

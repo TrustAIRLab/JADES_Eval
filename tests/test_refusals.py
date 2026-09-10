@@ -135,7 +135,7 @@ def test_refusal_fails_once_retains_usage_and_emits_code(tmp_path, mode, reason,
         assert issue["code"] == reason
         assert issue["severity"] == "error"
         assert issue["request_id"] == metrics.requests[0]["request_id"]
-        text = (tmp_path / "metrics.jsonl").read_text()
+        text = (tmp_path / "metrics.jsonl").read_text(encoding="utf-8")
         assert "secret refusal details" not in text and "private-token" not in text
         assert "I cannot participate" not in text
         assert '"event": "output_issue"' in text

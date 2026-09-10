@@ -111,7 +111,7 @@ def test_batch_resume_legacy_and_config_change(tmp_path, preprocess):
             assert resumed["skipped_count"] == 1
             assert resumed["current_run"]["tokens"]["total_tokens"] == 0
             assert resumed["cumulative"]["tokens"]["total_tokens"] == 90
-            data = json.loads(out.read_text())
+            data = json.loads(out.read_text(encoding="utf-8"))
             result = data["jailbreak_qa_artifacts"][0]
             assert result["index"] == 5
             assert "metrics" not in result["jailbreak_qa_result"]
@@ -156,7 +156,7 @@ def test_cancel_mid_sample_then_resume_skips_completed_sample(tmp_path, preproce
             task.cancel()
             with pytest.raises(asyncio.CancelledError):
                 await task
-            before = json.loads(BatchPaths.for_output(out).checkpoint.read_text())
+            before = json.loads(BatchPaths.for_output(out).checkpoint.read_text(encoding="utf-8"))
             assert before["items"]["0"]["status"] == "ok"
             assert "1" not in before["items"]
             assert before["runs"][-1]["status"] == "interrupted"
@@ -164,7 +164,7 @@ def test_cancel_mid_sample_then_resume_skips_completed_sample(tmp_path, preproce
             call_count = len(calls)
             block = False
             resumed = await run_batch(evaluator, inp, out, resume=True)
-        after = json.loads(BatchPaths.for_output(out).checkpoint.read_text())
+        after = json.loads(BatchPaths.for_output(out).checkpoint.read_text(encoding="utf-8"))
         assert after["items"]["0"] == first_result
         assert after["items"]["1"]["status"] == "ok"
         assert len(calls) - call_count == 6  # All six operations of sample 2 run again.

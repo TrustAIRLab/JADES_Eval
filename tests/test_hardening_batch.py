@@ -108,10 +108,10 @@ def test_nonfinite_sample_does_not_abort_batch(tmp_path, nlp, stage, bad):
         async with AsyncEvaluator(config(overall_llm=True), {"HF_TOKEN": "test"}, transport=httpx.MockTransport(response)) as evaluator:
             summary = await run_batch(evaluator, inp, out)
         assert summary["success_count"] == 1 and summary["failure_count"] == 1
-        rows = json.loads(out.read_text())["results"]
+        rows = json.loads(out.read_text(encoding="utf-8"))["results"]
         assert rows[0]["status"] == "error" and rows[1]["status"] == "ok"
         assert summary["current_run"]["tokens"]["known_total_tokens"] > 0
-        assert len(json.loads(BatchPaths.for_output(out).checkpoint.read_text())["items"]) == 2
+        assert len(json.loads(BatchPaths.for_output(out).checkpoint.read_text(encoding="utf-8"))["items"]) == 2
     asyncio.run(run())
 
 
@@ -131,7 +131,7 @@ def test_finite_operands_that_overflow_are_isolated(tmp_path, nlp):
         async with AsyncEvaluator(config(), {"HF_TOKEN": "test"}, transport=httpx.MockTransport(response)) as evaluator:
             summary = await run_batch(evaluator, inp, out)
         assert summary["failure_count"] == 1
-        assert "Non-finite" in json.loads(out.read_text())["results"][0]["error"]
+        assert "Non-finite" in json.loads(out.read_text(encoding="utf-8"))["results"][0]["error"]
     asyncio.run(run())
 
 
@@ -169,9 +169,9 @@ def test_sidecar_names_do_not_collide(tmp_path, nlp):
             original = {p: p.read_bytes() for p in BatchPaths.for_output(a).files()}
             await run_batch(evaluator, inp, b, overwrite=True)
             assert all(p.read_bytes() == data for p, data in original.items())
-            run_id = json.loads(a.read_text())["results"][0]["run_id"]
+            run_id = json.loads(a.read_text(encoding="utf-8"))["results"][0]["run_id"]
             await run_batch(evaluator, inp, a, resume=True)
-            assert json.loads(a.read_text())["results"][0]["run_id"] == run_id
+            assert json.loads(a.read_text(encoding="utf-8"))["results"][0]["run_id"] == run_id
     asyncio.run(run())
 
 

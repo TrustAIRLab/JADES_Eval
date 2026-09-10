@@ -227,7 +227,7 @@ def test_invalid_metadata_rejected_before_overwrite_or_paid_calls(tmp_path, meta
         async with AsyncEvaluator(config(), {"HF_TOKEN": "mock"}, transport=httpx.MockTransport(lambda r: pytest.fail("Unexpected request"))) as ev:
             with pytest.raises(ValueError, match="parameters must be a JSON object"):
                 await run_batch(ev, inp, out, overwrite=True, legacy=legacy)
-        assert out.read_text() == "previous output"
+        assert out.read_text(encoding="utf-8") == "previous output"
     asyncio.run(run())
 
 

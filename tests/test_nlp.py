@@ -13,7 +13,7 @@ BASE = Path(__file__).parent / "baseline" / "tools.py"
 
 
 def reference():
-    tree = ast.parse(BASE.read_text())
+    tree = ast.parse(BASE.read_text(encoding="utf-8"))
     funcs = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name in {"detect_initials", "fix_sentence_splitter", "string_split", "simple_rejection_check"}]
     ns = {"re": __import__("re"), "np": np, "tokenize": nltk.tokenize, "_ensure_nltk": lambda: None}
     exec(compile(ast.Module(body=funcs, type_ignores=[]), str(BASE), "exec"), ns)
