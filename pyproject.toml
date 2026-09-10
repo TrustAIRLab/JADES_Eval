@@ -18,10 +18,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/TrustAIRLab/jades-eval"
-Repository = "https://github.com/TrustAIRLab/jades-eval"
-Issues = "https://github.com/TrustAIRLab/jades-eval/issues"
-Documentation = "https://github.com/TrustAIRLab/jades-eval#readme"
+Homepage = "https://github.com/TrustAIRLab/JADES_Eval"
+Repository = "https://github.com/TrustAIRLab/JADES_Eval"
+Issues = "https://github.com/TrustAIRLab/JADES_Eval/issues"
+Documentation = "https://github.com/TrustAIRLab/JADES_Eval#readme"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "build>=1.2", "wheel>=0.45"]

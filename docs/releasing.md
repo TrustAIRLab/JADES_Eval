@@ -4,7 +4,7 @@ The release workflow is `.github/workflows/release.yml`. Main-branch pushes and 
 
 ## One-time account setup
 
-On PyPI, add a pending GitHub publisher for project `jades-eval`, owner `TrustAIRLab`, repository `jades-eval`, workflow `release.yml`, environment `pypi`. Create the matching GitHub environment. No PyPI API token, HF token or search credential is needed in Actions.
+On PyPI, add a pending GitHub publisher for project `jades-eval`, owner `TrustAIRLab`, repository `JADES_Eval`, workflow `release.yml`, environment `pypi`. Create the matching GitHub environment. No PyPI API token, HF token or search credential is needed in Actions.
 
 ## Prepare a version
 

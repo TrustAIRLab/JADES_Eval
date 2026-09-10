@@ -14,7 +14,7 @@ cp .env.example .env
 
 Set `HF_TOKEN` in `.env`. The default model is **exactly** `deepseek-ai/DeepSeek-V4-Flash-0731:together`, at `https://router.huggingface.co/v1`. The package never silently substitutes a different model. Availability depends on that endpoint and your account.
 
-Source code and release downloads: [GitHub](https://github.com/TrustAIRLab/jades-eval). Package index: [PyPI](https://pypi.org/project/jades-eval/).
+Source code and release downloads: [GitHub](https://github.com/TrustAIRLab/JADES_Eval). Package index: [PyPI](https://pypi.org/project/jades-eval/).
 
 Core dependencies include NLTK and sentence-transformers/PyTorch. First use prepares the original NLP assets; it does not fall back to a different algorithm. To prepare them before an offline run:
 
