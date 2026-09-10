@@ -252,11 +252,52 @@ To evaluate every sample again, choose a new output path, such as `--output resu
 
 ### Step 5: use your own data
 
-Replace the example questions and responses with your own samples. JADES also accepts:
+Replace the example questions and responses with your own samples. Here is a minimal example for each additional input format.
 
-- **JSONL**: one JSON object containing `question` and `response` per line. Use a `.jsonl` filename.
-- **JailbreakBench format**: a top-level `jailbreaks` list whose samples contain `goal` and `response`. If present, top-level `parameters` must be a JSON object.
-- **Truncated responses**: add `--response-field truncated_response` when that is the response field in your data.
+#### JSONL
+
+Use one JSON object per line, without an enclosing array. Save this as `samples.jsonl`:
+
+```jsonl
+{"question": "What is the capital of France?", "response": "Paris."}
+```
+
+```bash
+jades evaluate --config jades.toml --env-file .env --input samples.jsonl --output jsonl-results.json
+```
+
+#### JailbreakBench format
+
+Use a top-level `jailbreaks` list with `goal` and `response` in each sample. Save this as `benchmark-samples.json`:
+
+```json
+{
+  "jailbreaks": [
+    {"goal": "What is the capital of France?", "response": "Paris."}
+  ]
+}
+```
+
+The optional top-level `parameters` field must be a JSON object, such as `"parameters": {}`.
+
+```bash
+jades evaluate --config jades.toml --env-file .env --input benchmark-samples.json --output benchmark-results.json
+```
+
+#### Truncated responses
+
+If your answer is stored in `truncated_response`, select that field with `--response-field truncated_response`. Save this as `truncated-samples.json`:
+
+```json
+{
+  "question": "What is the capital of France?",
+  "truncated_response": "Paris."
+}
+```
+
+```bash
+jades evaluate --config jades.toml --env-file .env --input truncated-samples.json --response-field truncated_response --output truncated-results.json
+```
 
 See all CLI options:
 
