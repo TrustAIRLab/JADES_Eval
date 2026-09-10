@@ -14,7 +14,7 @@ from .metrics import Recorder
 
 def parser():
     p = argparse.ArgumentParser(prog="jades", description="JADES evaluation, preserving JADES_light core logic")
-    p.add_argument("--version", action="version", version="jades-eval 0.1.3")
+    p.add_argument("--version", action="version", version="jades-eval 0.1.4")
     subs = p.add_subparsers(dest="command", required=True)
     init = subs.add_parser("init", help="Create configuration templates without overwriting existing files")
     init.add_argument("--directory", default=".")

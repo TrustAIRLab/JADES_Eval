@@ -2,5 +2,5 @@
 from .config import Config, ModelConfig
 from .evaluator import AsyncEvaluator, Evaluator, EvaluationResult, EvaluationError
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __all__ = ["Config", "ModelConfig", "Evaluator", "AsyncEvaluator", "EvaluationResult", "EvaluationError"]

@@ -44,7 +44,9 @@ for archive in files:
 metadata = root / 'release-metadata'
 metadata.mkdir(exist_ok=True)
 (metadata / 'SHA256SUMS').write_text(''.join(f'{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}\n' for p in files))
-(metadata / 'notes.md').write_text((root / 'CHANGELOG.md').read_text())
+changelog = (root / 'CHANGELOG.md').read_text(encoding='utf-8')
+section = changelog.split(f'## {version}\n', 1)[1].split('\n## ', 1)[0].strip()
+(metadata / 'notes.md').write_text(f'## {version}\n\n{section}\n', encoding='utf-8')
 print(json.dumps({'version': version, 'files': [p.name for p in files], 'checks': 'passed'}))
 
 if os.environ.get("GITHUB_OUTPUT"):

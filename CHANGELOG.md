@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.4
+
+- Add an English user guide with complete Python and CLI walkthroughs, result inspection, usage metrics, and batch recovery examples.
+- Translate repository documentation and example messages into English.
+- Update project links to `TrustAIRLab/JADES_Eval` and make documentation links work on both GitHub and PyPI.
+- Represent multilingual detection rules and regression samples with Unicode escapes while preserving their exact runtime values.
+
+Evaluation prompts, scoring logic, API behavior, and checkpoint compatibility are unchanged.
+
 ## 0.1.3
 
 First public distribution of the JADES_light-compatible evaluator.

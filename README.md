@@ -313,8 +313,8 @@ After editing the configuration, rerun the CLI command or create a new `Evaluato
 
 ## Learn more
 
-- [Time and token metrics](docs/metrics.md)
-- [Refusal warnings and failure handling](docs/refusal-checks.md)
-- [Optional reproducibility details](docs/fingerprint-display.md)
-- [Scoring behavior](docs/compatibility.md)
+- [Time and token metrics](https://github.com/TrustAIRLab/JADES_Eval/blob/main/docs/metrics.md)
+- [Refusal warnings and failure handling](https://github.com/TrustAIRLab/JADES_Eval/blob/main/docs/refusal-checks.md)
+- [Optional reproducibility details](https://github.com/TrustAIRLab/JADES_Eval/blob/main/docs/fingerprint-display.md)
+- [Scoring behavior](https://github.com/TrustAIRLab/JADES_Eval/blob/main/docs/compatibility.md)
 - [Report an issue](https://github.com/TrustAIRLab/JADES_Eval/issues)

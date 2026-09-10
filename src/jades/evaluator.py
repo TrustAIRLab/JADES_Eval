@@ -275,7 +275,7 @@ class AsyncEvaluator:
                                       module=getattr(exc, "module", None)) from None
             metrics = recorder.finish()
             fingerprints = {"config_fingerprint": config.fingerprint(), "prompt_fingerprint": prompt_fingerprint()}
-            metadata = {"config": config.model_dump(), "baseline": "JADES_light", "version": "0.1.3"}
+            metadata = {"config": config.model_dump(), "baseline": "JADES_light", "version": "0.1.4"}
             if include_fingerprints:
                 metadata.update(fingerprints)
             result = EvaluationResult(state=state, metrics=metrics, all_decomposed_clear_unit_facts=rt.units,
